@@ -1,8 +1,9 @@
+from statistics import mode
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
 
-train():
+def train():
     df = pd.read_csv("/Users/mikeviolette/IdeaProjects/MulliganCalculator/machine-learning/hand.csv")
     df.head()
     tf.random.set_seed(42)
@@ -24,3 +25,4 @@ train():
             tf.keras.metrics.Recall(name='recall')
         ]
     )
+    return model
