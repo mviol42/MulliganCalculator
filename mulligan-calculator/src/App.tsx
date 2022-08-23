@@ -22,7 +22,7 @@ class App extends Component<{}, AppState> {
     render() {
         return (
             <div>
-                <button onClick={() => this.saveData()}>Exit Session</button>
+                <button onClick={() => this.saveData()}>Save Data</button>
                 <div className="center">
                     <HandOfCards cards={this.state.cards}/>
                     <div className="centerButton">
@@ -41,7 +41,7 @@ class App extends Component<{}, AppState> {
             toReturn.push(0);
         }
         for (let i = 0; i < NUM_CARS_IN_HAND; i++) {
-            toReturn[Math.floor(Math.random() * NUM_CARD_TYPES)]++;
+            toReturn[this.getIndex()]++;
         }
         return toReturn;
     }
@@ -75,6 +75,28 @@ class App extends Component<{}, AppState> {
 
         link.click(); // This will download the data file named "hands.csv".
         this.setState({cards: this.compileCards(), csv: []})
+    }
+
+    getIndex() {
+        let num = Math.random();
+        if (num < 0.34) {
+            return 0;
+        } else if (num < 0.36) {
+            return 1;
+        } else if (num < 0.44) {
+            return 2;
+        } else if (num < 0.5) {
+            return 3;
+        } else if (num < 0.64) {
+            return 4;
+        } else if (num < 0.78) {
+            return 5;
+        } else if (num < 0.86) {
+            return 6;
+        } else if (num < 0.88) {
+            return 7;
+        }
+        return 8;
     }
 }
 
