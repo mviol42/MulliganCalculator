@@ -1,12 +1,13 @@
 import numpy
 import json
 import analysis as Model
+from data import deck_generator
 
 num_iter = 100000
 
 
 def run_samples():
-    data = generate_decks()
+    data = deck_generator.generate_decks()
     model = Model.train()
     for t in range(num_iter):
         max_sample = 0
@@ -23,7 +24,3 @@ def run_samples():
             data[arm][0] += 1
         else:
             data[arm][1] += 1
-
-
-def generate_decks():
-    return []
