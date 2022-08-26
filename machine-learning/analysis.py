@@ -5,7 +5,7 @@ import tensorflow as tf
 
 
 def train():
-    df = pd.read_csv("/Users/mikeviolette/IdeaProjects/MulliganCalculator/machine-learning/hand.csv")
+    df = pd.read_csv("hand.csv")
     df.head()
     tf.random.set_seed(42)
 
