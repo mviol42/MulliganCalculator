@@ -3,11 +3,11 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
 
+
 def train():
     df = pd.read_csv("/Users/mikeviolette/IdeaProjects/MulliganCalculator/machine-learning/hand.csv")
     df.head()
     tf.random.set_seed(42)
-
 
     model = tf.keras.Sequential([
         tf.keras.layers.Dense(128, activation='relu'),
