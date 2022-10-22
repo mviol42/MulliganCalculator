@@ -1,9 +1,11 @@
+import random
+
 import numpy
 import json
 import analysis as Model
 import deck_generator
 
-num_iter = 100000
+num_iter = 1000000
 
 
 def get_sample_hand(arm):
@@ -22,27 +24,45 @@ def get_sample_hand(arm):
     return results
 
 
+def find_optimal(data):
+    max = 0
+    max_key = ''
+    for key in list(data.keys()):
+        alpha, beta = float(data[key][0]), float(data[key][1])
+        ratio = alpha / (beta + alpha)
+        if ratio > max:
+            max = ratio
+            max_key = key
+    return max_key
+
 def run_samples():
-    deck_generator.generate_decks(1000, './decks.json')
-    data = json.load(open('./decks.json', 'r'))
+    deck_location = './decks.json'
+    # deck_generator.generate_decks(1000, deck_location)
+    data = json.load(open(deck_location, 'r'))
+    keys = list(data.keys())
     model = Model.train()
 
     for t in range(num_iter):
         max_sample = 0
         arm = ""
-        for deck in data:
-            alpha, beta = int(deck[0]), int(deck[1])
+        random.shuffle(keys)
+        for key in keys:
+            alpha, beta = int(data[key][0]), int(data[key][1])
             s = numpy.random.beta(alpha, beta)
             if max_sample < s:
-                arm = deck
+                arm = key
                 max_sample = s
 
         sample_hand = get_sample_hand(arm)
-        prediction = model.predict(sample_hand)
+        prediction = model.predict(numpy.array([sample_hand, ]), verbose=0)
         if prediction >= 0.5:
             data[arm][0] += 1
         else:
             data[arm][1] += 1
+
+    print(find_optimal(data))
+    with open(deck_location, "w") as outfile:
+        json.dump(data, outfile)
 
 
 if __name__ == "__main__":
