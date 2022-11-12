@@ -25,35 +25,38 @@ def main():
     base_deck, min_deck_size = get_base_deck()
     set_of_decks = set()
 
-    def generate_decks(curr_deck_so_far, cards_in_deck, types, which_type, max_in_deck):
+    def generate_decks(curr_deck_so_far, types, which_type, max_in_deck):
+        cards_in_deck = sum(curr_deck_so_far)
+        if tuple(curr_deck_so_far) in set_of_decks or cards_in_deck > max_in_deck:
+            return
+
         if cards_in_deck == max_in_deck:
-            if tuple(curr_deck_so_far) not in set_of_decks:
-                set_of_decks.add(tuple(curr_deck_so_far))
+            set_of_decks.add(tuple(curr_deck_so_far))
 
         if cards_in_deck < max_in_deck and which_type < len(types):
             for i in range(card_types[types[which_type]]['range']):
+                # this makes a new instance of the array,
+                # meaning the future recursive calls won't touch this same array
+                tmp = curr_deck_so_far[:]
                 curr_deck_so_far[which_type] = card_types[types[which_type]]['min_number'] + i
                 generate_decks(curr_deck_so_far,
-                               cards_in_deck + i,
                                types,
                                which_type + 1,
                                max_in_deck)
+                curr_deck_so_far = tmp
 
     # then, starting with this base deck and min size, use recursion to build out various decks
+    # this technique is very memory intensive and would likely be better as a for-loop or similar
+    # perhaps a DP angle
     generate_decks(curr_deck_so_far=base_deck,
-                   cards_in_deck=min_deck_size,
                    types=list(card_types),
                    which_type=0,
                    max_in_deck=100)
 
     output_decks = {}
     for deck in set_of_decks:
-        if sum(list(deck)) == 100:
-            # for some reason, the decks sometimes have more/less than 100 cards
-            # for now, just add an if statement to it but
-            # TODO: fix generate_decks to be more accurate
-            deck_sting = ",".join(str(num_type) for num_type in list(deck))
-            output_decks[deck_sting] = tuple([1, 1])
+        deck_sting = ",".join(str(num_type) for num_type in list(deck))
+        output_decks[deck_sting] = tuple([1, 1])
 
     with open(decks_location, "w") as outfile:
         json.dump(output_decks, outfile)

@@ -5,8 +5,11 @@ import json
 import analysis as Model
 from config import decks_location
 from tqdm import tqdm
+from collections import OrderedDict
 
-num_iter = 1000000
+num_iter = 10000
+keys_to_look_at = 100
+itr_to_store_data = num_iter / 10
 
 
 def get_sample_hand(arm):
@@ -25,16 +28,19 @@ def get_sample_hand(arm):
     return results
 
 
-def find_optimal(data):
-    max_ratio = 0
-    max_key = ''
-    for key in list(data.keys()):
-        alpha, beta = float(data[key][0]), float(data[key][1])
-        ratio = alpha / (beta + alpha)
-        if ratio > max_ratio:
-            max_ratio = ratio
-            max_key = key
-    return max_key
+def find_success_ratio(key, data):
+    success = float(data[key][0])
+    fail = float(data[key][1])
+    return success / (success + fail)
+
+
+def write_data(data):
+    ordered_keys = sorted(data.keys(), key=lambda x:  find_success_ratio(x, data))
+    list_of_key_value_pairs = [(key, data[key]) for key in ordered_keys]
+    ordered_to_write = OrderedDict(list_of_key_value_pairs)
+    with open(decks_location, "w") as outfile:
+        json.dump(ordered_to_write, outfile)
+
 
 def run_samples():
     data = json.load(open(decks_location, 'r'))
@@ -44,11 +50,11 @@ def run_samples():
     for t in tqdm(range(num_iter)):
         max_sample = 0
         arm = ""
-        # shuffle the keys so we randomly pick the first 100
+        # shuffle the keys so the first keys we view are random
         # we do this since the threshold gets so high for MAB that it is basically impossible to surpass
-        # so we'd only be looking at the first set of decks anyway
+        # past ~100 keys
         random.shuffle(keys)
-        for i in range(100):
+        for i in range(keys_to_look_at):
             key = keys[i]
             alpha, beta = int(data[key][0]), int(data[key][1])
             s = numpy.random.beta(alpha, beta)
@@ -63,11 +69,11 @@ def run_samples():
         else:
             data[arm][1] += 1
 
-        # write every 25,000 so we can continually store data and our run won't be lost if it stops
-        if t % 25000 == 0:
-            with open(decks_location, "w") as outfile:
-                json.dump(data, outfile)
+        # write every so often to we can continually store data so our run won't be lost if it stops
+        if t % itr_to_store_data == 0:
+            write_data(data)
 
+    write_data(data)
 
 if __name__ == "__main__":
     run_samples()
