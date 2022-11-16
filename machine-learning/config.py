@@ -1,15 +1,15 @@
 card_types = dict(
     lands=dict(
         min_number=31,
-        range=7,
+        range=6,
     ),
     zero_mv_acc=dict(
-        min_number=0,
-        range=3,
+        min_number=2,
+        range=1,
     ),
     one_mv_acc=dict(
         min_number=10,
-        range=8,
+        range=6,
     ),
     one_mv_threat=dict(
         min_number=8,
@@ -29,12 +29,13 @@ card_types = dict(
     ),
     five_mv_threat=dict(
         min_number=0,
-        range=5,
+        range=1,
     ),
     interaction=dict(
-        min_number=5,
-        range=10,
+        min_number=8,
+        range=1,
     )
 )
 
 decks_location = './decks.json'
+small_decks_location = './small_subset.json'

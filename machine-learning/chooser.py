@@ -3,12 +3,12 @@ import random
 import numpy
 import json
 import analysis as Model
-from config import decks_location
+from config import decks_location, small_decks_location
 from tqdm import tqdm
 from collections import OrderedDict
 
-num_iter = 10000
-keys_to_look_at = 100
+num_iter = 1000000
+keys_to_look_at = 500
 itr_to_store_data = num_iter / 10
 
 
@@ -31,14 +31,24 @@ def get_sample_hand(arm):
 def find_success_ratio(key, data):
     success = float(data[key][0])
     fail = float(data[key][1])
-    return success / (success + fail)
+    return success
 
 
 def write_data(data):
-    ordered_keys = sorted(data.keys(), key=lambda x:  find_success_ratio(x, data))
+    ordered_keys = sorted(data.keys(), key=lambda x: find_success_ratio(x, data), reverse=True)
     list_of_key_value_pairs = [(key, data[key]) for key in ordered_keys]
     ordered_to_write = OrderedDict(list_of_key_value_pairs)
     with open(decks_location, "w") as outfile:
+        json.dump(ordered_to_write, outfile)
+
+
+def write_small_subset_data(data):
+    ordered_keys = sorted(data.keys(), key=lambda x: find_success_ratio(x, data), reverse=True)
+    list_of_key_value_pairs = []
+    for i in range(keys_to_look_at):
+        list_of_key_value_pairs.append((ordered_keys[i], data[ordered_keys[i]]))
+    ordered_to_write = OrderedDict(list_of_key_value_pairs)
+    with open(small_decks_location, "w") as outfile:
         json.dump(ordered_to_write, outfile)
 
 
@@ -71,9 +81,10 @@ def run_samples():
 
         # write every so often to we can continually store data so our run won't be lost if it stops
         if t % itr_to_store_data == 0:
-            write_data(data)
+            write_small_subset_data(data)
 
     write_data(data)
+
 
 if __name__ == "__main__":
     run_samples()
